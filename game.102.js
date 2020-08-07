@@ -54,6 +54,16 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   this.kHorizontal = 1;
   this.kVerticle = 0.1;
 
+  this.springX = 0;
+  this.springY = 0;
+  this.springX1 = 0;
+  this.springY1 = 0;
+
+  this.springXP = 0;
+  this.springYP = 0;
+  this.springX1P = 0;
+  this.springY1P = 0;
+
   this.x = 320;
   this.y = 280;
   this.xVel = 0;
@@ -83,7 +93,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
           ctx.fillRect(this.l1 / -1, 10 / -1, 2*this.l1, 2*10);
       ctx.restore();
   }
-  this.springForcesWheel  = function()
+  this.springForcesAll  = function()
   {
 
     var carXRot = this.x * Math.cos(this.dir) + this.y * Math.sin(this.dir);
@@ -92,11 +102,14 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
     var wheelXRot = this.wheelBehind.x * Math.cos(this.dir) + this.wheelBehind.y * Math.sin(this.dir);
     var wheelYRot = -this.wheelBehind.y * Math.cos(this.dir) + this.wheelBehind.x * Math.sin(this.dir);
 
-    var springX = carXRot - this.l1 - wheelXRot;
-    var springY = carYRot - this.l2 - wheelYRot;
+    this.springX = carXRot - this.l1 - wheelXRot;
+    this.springY = carYRot - this.l2 - wheelYRot;
 
-    var wheelxImpRot = springX * this.kHorizontal;
-    var wheelyImpRot = springY * this.kVerticle;
+    var wheelxImpRot = this.springX * this.kHorizontal + 0.1*(this.springX - this.springXP);
+    var wheelyImpRot = this.springY * this.kVerticle+0.1*(this.springY - this.springYP);
+
+    this.springXP = this.springX;
+    this.springYP = this.springY;
 
     this.wheelBehind.xImp += wheelxImpRot * Math.cos(this.dir) + wheelyImpRot * Math.sin(this.dir);
     this.wheelBehind.yImp += -wheelyImpRot * Math.cos(this.dir) + wheelxImpRot * Math.sin(this.dir);
@@ -104,46 +117,17 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
     var wheelXRot1 = this.wheelAhead.x * Math.cos(this.dir) + this.wheelAhead.y * Math.sin(this.dir);
     var wheelYRot1 = -this.wheelAhead.y * Math.cos(this.dir) + this.wheelAhead.x * Math.sin(this.dir);
 
-    var springX1 = carXRot + this.l1 - wheelXRot1;
-    var springY1 = carYRot - this.l2 - wheelYRot1;
+    this.springX1 = carXRot + this.l1 - wheelXRot1;
+    this.springY1 = carYRot - this.l2 - wheelYRot1;
 
-    var wheelxImpRot1 = springX1 * this.kHorizontal;
-    var wheelyImpRot1 = springY1 * this.kVerticle;
+    var wheelxImpRot1 = this.springX1 * this.kHorizontal+ 0.1*(this.springX1 - this.springX1P);
+    var wheelyImpRot1 = this.springY1 * this.kVerticle+ 0.1*(this.springY1 - this.springY1P);
+
+    this.springX1P = this.springX1;
+    this.springY1P = this.springY1;
 
     this.wheelAhead.xImp += wheelxImpRot1 * Math.cos(this.dir) + wheelyImpRot1 * Math.sin(this.dir);
     this.wheelAhead.yImp += -wheelyImpRot1 * Math.cos(this.dir) + wheelxImpRot1 * Math.sin(this.dir);
-/*
-    var carXImpRot = -(wheelxImpRot1 + wheelxImpRot)/this.mass;
-    var carYImpRot = -(wheelyImpRot1 + wheelyImpRot)/this.mass;
-
-    this.xImp = carXImpRot * Math.cos(this.dir) + carYImpRot * Math.sin(this.dir);
-    this.yImp = -carYImpRot * Math.cos(this.dir) + carXImpRot * Math.sin(this.dir);
-
-    this.angImp = this.l1 * (wheelyImpRot1 - wheelyImpRot)/(1/3 * this.mass *this.l1 * this.l1);
-    */
-  }
-  this.springForcesCar = function()
-  {
-    var carXRot = this.x * Math.cos(this.dir) + this.y * Math.sin(this.dir);
-    var carYRot = -this.y * Math.cos(this.dir) + this.x * Math.sin(this.dir);
-
-    var wheelXRot = this.wheelBehind.x * Math.cos(this.dir) + this.wheelBehind.y * Math.sin(this.dir);
-    var wheelYRot = -this.wheelBehind.y * Math.cos(this.dir) + this.wheelBehind.x * Math.sin(this.dir);
-
-    var springX = carXRot - this.l1 - wheelXRot;
-    var springY = carYRot - this.l2 - wheelYRot;
-
-    var wheelxImpRot = springX * this.kHorizontal;
-    var wheelyImpRot = springY * this.kVerticle;
-
-    var wheelXRot1 = this.wheelAhead.x * Math.cos(this.dir) + this.wheelAhead.y * Math.sin(this.dir);
-    var wheelYRot1 = -this.wheelAhead.y * Math.cos(this.dir) + this.wheelAhead.x * Math.sin(this.dir);
-
-    var springX1 = carXRot + this.l1 - wheelXRot1;
-    var springY1 = carYRot - this.l2 - wheelYRot1;
-
-    var wheelxImpRot1 = springX1 * this.kHorizontal;
-    var wheelyImpRot1 = springY1 * this.kVerticle;
 
     var carXImpRot = -(wheelxImpRot1 + wheelxImpRot)/this.mass;
     var carYImpRot = -(wheelyImpRot1 + wheelyImpRot)/this.mass;
@@ -209,6 +193,7 @@ function wheel(x, y, dir, r, color, type) {
     this.r = r;
     this.x = x;
     this.y = y;
+    this.contactPoints = 0;
 
     this.bouncy = 0.2;
     this.sfriction = 2;
@@ -244,7 +229,7 @@ function wheel(x, y, dir, r, color, type) {
     }
     this.resetImp = function()
     {
-
+            this.contactPoints = 0;
             this.yImp =0 ;
             this.xImp =0 ;
             this.angImp =0 ;
@@ -271,10 +256,10 @@ function wheel(x, y, dir, r, color, type) {
           rotXImp = -Math.abs(this.kfriction * rotYImp);
         }
       }
-      this.angImp += -2/this.r * rotXImp;
+      this.angImp += -2/this.r * rotXImp/this.contactPoints;
 
-      this.xImp += rotXImp * Math.cos(platAng) + rotYImp * Math.sin(platAng);
-      this.yImp += -rotYImp * Math.cos(platAng) + rotXImp * Math.sin(platAng);
+      this.xImp += rotXImp * Math.cos(platAng) + rotYImp * Math.sin(platAng)/this.contactPoints;
+      this.yImp += -rotYImp * Math.cos(platAng) + rotXImp * Math.sin(platAng)/this.contactPoints;
     }
     this.intersection = function(x1,y1,x2,y2)
     {
@@ -337,12 +322,25 @@ function terrain(arrY, dx)
       var inter = wheel1.intersection(this.dx * i,this.arrY[i], this.dx*(i + 1), this.arrY[i+1]);
       if (inter)
       {
+        wheel1.contactPoints += 1;
+      }
+    }
+
+
+    for (var i = 0 ; i < this.arrY.length - 1; i++)
+    {
+      var inter = wheel1.intersection(this.dx * i,this.arrY[i], this.dx*(i + 1), this.arrY[i+1]);
+      if (inter)
+      {
+
         this.resolveIntersection(wheel1, Math.atan((this.arrY[i+1] - this.arrY[i])/(this.dx)),i);
         flat = true;
       }
     }
+
     if (!flat)
     {
+      wheel1.contactPoints = 1;
       for (var i = 0; i < this.arrY.length; i++)
       {
         var inter = wheel1.intersectPoint(this.dx * i,this.arrY[i]);
@@ -396,8 +394,7 @@ function updateGameArea() {
       myGameArea.clear();
       car1.wheelAhead.resetImp();
       car1.wheelBehind.resetImp();
-      car1.springForcesCar();
-      car1.springForcesWheel();
+      car1.springForcesAll();
       terrain.intersection(wheelAhead);
       terrain.intersection(wheelBehind);
 
@@ -405,10 +402,12 @@ function updateGameArea() {
       car1.controls();
       wheelAhead.doforces();
       wheelBehind.doforces();
-      car1.display();
+
       car1.doForces();
 
+      car1.display();
       wheelAhead.display();
       wheelBehind.display();
       terrain.display();
+      console.log(wheelAhead.contactPoints);
 }
