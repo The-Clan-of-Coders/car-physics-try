@@ -2,12 +2,12 @@ var wheelBehind;
 var wheelAhead;
 var car1;
 var terrain;
-var gravity = 0.2;
+var gravity = 0.15;
 function startGame() {
     wheelBehind = new wheel(601, 100,0, 25, "wheel.png",  "image");
     wheelAhead = new wheel(599, 100,0, 25, "wheel.png",  "image");
     car1 = new car(wheelAhead,wheelBehind, 70,50, "body.png","image");
-    terrain = new terrain([200,300,325,325,300,260,250,290,370,500], 150);
+    terrain = new terrain([200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250,200,300,325,325,300,260,250,290,370,500,450,425,400,375,300,310,340,310,250], 150);
     myGameArea.start();
 }
 var myGameArea = {
@@ -51,8 +51,8 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   this.l2 = l2;
   this.angleCOG = Math.atan(l2/l1);
   this.lengthCOG = Math.sqrt(l1 * l1 + l2 * l2);
-  this.kHorizontal = 1;
-  this.kVerticle = 0.1;
+  this.kHorizontal = 0.5;
+  this.kVerticle = 0.12;
 
   this.springX = 0;
   this.springY = 0;
@@ -65,7 +65,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   this.springY1P = 0;
 
   this.x = 320;
-  this.y = 280;
+  this.y = 100;
   this.xVel = 0;
   this.yVel = 0;
 
@@ -84,7 +84,7 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   this.display = function(){
       ctx = myGameArea.context;
       ctx.save();
-      ctx.translate(this.x, this.y);
+      ctx.translate(this.x -terrain.scrollX, this.y -terrain.scrollY);
       ctx.rotate(this.dir);
       ctx.fillStyle = this.color;
       if (this.type == "image")
@@ -152,11 +152,11 @@ function car(wheelAhead, wheelBehind, l1, l2, color, type)
   {
     if (myGameArea.keys && myGameArea.keys[39])
     {
-      this.wheelBehind.angImp += 0.05;
+      this.wheelBehind.angImp += 0.1;
     }
     if (myGameArea.keys && myGameArea.keys[37])
     {
-      this.wheelBehind.angImp -= 0.05;
+      this.wheelBehind.angImp -= 0.1;
     }
   }
   /*this.setWheels = function()
@@ -212,7 +212,7 @@ function wheel(x, y, dir, r, color, type) {
     this.display = function(){
         ctx = myGameArea.context;
         ctx.save();
-        ctx.translate(this.x, this.y);
+        ctx.translate(this.x -terrain.scrollX, this.y -terrain.scrollY)
         ctx.rotate(this.dir);
         ctx.fillStyle = this.color;
         if (type == "image")
@@ -300,19 +300,26 @@ function wheel(x, y, dir, r, color, type) {
 }
 function terrain(arrY, dx)
 {
+  this.scrollX = 0;
+  this.scrollY = 0;
   this.arrY = arrY;
   this.dx = dx;
   this.display = function(){
       ctx = myGameArea.context;
       ctx.beginPath();
-      ctx.moveTo(0, arrY[0]);
+      ctx.moveTo( - this.scrollX, arrY[0] -this.scrollY);
       for (var i = 1; i < arrY.length; i++)
       {
-        ctx.lineTo(i * dx, arrY[i]);
+        ctx.lineTo(i * dx - this.scrollX, arrY[i] -this.scrollY);
         ctx.lineWidth = 5;
 	      ctx.strokeStyle = '#0000FF';
       }
       ctx.stroke();
+  }
+  this.updateScroll = function()
+  {
+    this.scrollX += (car1.x -300 - this.scrollX)/30;
+    this.scrollY += (car1.y -300- this.scrollY)/30;
   }
   this.intersection = function(wheel1){
 
@@ -404,7 +411,7 @@ function updateGameArea() {
       wheelBehind.doforces();
 
       car1.doForces();
-
+      terrain.updateScroll();
       car1.display();
       wheelAhead.display();
       wheelBehind.display();
